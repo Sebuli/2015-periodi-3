@@ -133,11 +133,15 @@ public class Pelilaudanpiirtaja {
         for (int a = 0; a <= 7; a++) {
             for (int b = 0; b <= 7; b++) {
 
-                if (mahdolliset.contains("" + a + b)) {
-                    ruudukko[a][b].setBackground(Color.yellow);
+                for (String mahdollinen : mahdolliset) {
+                    mahdollinen = mahdollinen.substring(0, 2);
+                    if (mahdollinen.contains("" + a + b)) {
+                        ruudukko[a][b].setBackground(Color.yellow);
+
+                    }
                 }
             }
+
         }
     }
-
 }

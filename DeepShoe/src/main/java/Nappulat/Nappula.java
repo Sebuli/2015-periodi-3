@@ -86,15 +86,18 @@ public class Nappula {
         kaikkiMahdollisetSiirrot.addAll(siirettavaNappula.kaikkiMahdollisetSiirrot(x, y, ruudukko));
 
         for (String siirto : kaikkiMahdollisetSiirrot) {
+            
+            
             int uusix = Integer.parseInt("" + siirto.charAt(0));
             int uusiy = Integer.parseInt("" + siirto.charAt(1));
+            
             if (ruudukko[uusix][uusiy].getNappula() == null && (ruudukko[x][y].getNappula().getTyyppi() == Nappula.Tyyppi.VSOTILAS
                     || ruudukko[x][y].getNappula().getTyyppi() == Nappula.Tyyppi.MSOTILAS) && uusiy != y) {
 
                 Nappula nappula = ruudukko[x][uusiy].getNappula();
                 kopioLauta.siirra(x, y, uusix, uusiy);
                 if (!kopioLauta.onkoShakki(vari)) {
-                    siirrot.add(siirto);
+                    siirrot.add(siirto + (x) + (y));
                 }
                 kopioLauta.siirra(uusix, uusiy, x, y);
                 ruudukko[x][uusiy].asetaNappula(nappula);
@@ -102,7 +105,7 @@ public class Nappula {
             } else if (ruudukko[uusix][uusiy].getNappula() == null) {
                 kopioLauta.siirra(x, y, uusix, uusiy);
                 if (!kopioLauta.onkoShakki(vari)) {
-                    siirrot.add(siirto);
+                    siirrot.add(siirto + (x) + (y));
                 }
                 kopioLauta.siirra(uusix, uusiy, x, y);
 
@@ -110,7 +113,7 @@ public class Nappula {
                 Nappula nappula = ruudukko[uusix][uusiy].getNappula();
                 kopioLauta.siirra(x, y, uusix, uusiy);
                 if (!kopioLauta.onkoShakki(vari)) {
-                    siirrot.add(siirto);
+                    siirrot.add(siirto + (x) + (y));
                 }
                 kopioLauta.siirra(uusix, uusiy, x, y);
                 ruudukko[uusix][uusiy].asetaNappula(nappula);
@@ -130,6 +133,10 @@ public class Nappula {
 
     public void kasvataSiirtojenMaaraa() {
         siirtojenMaara += 1;
+    }
+    
+    public void asetaSiirtojenMaaraa(int i) {
+        siirtojenMaara = i;
     }
 
     /**

@@ -176,9 +176,13 @@ public class Pelilauta {
 
                     kaikkiMahdollisetSiirrot.addAll(getNappula(i, t).kaikkiMahdollisetSiirrot(i, t, ruudukko));
 
-                    if (kaikkiMahdollisetSiirrot.contains("" + x + y)) {
-                        return true;
+                    for (String mahdollinen : kaikkiMahdollisetSiirrot) {
+                        mahdollinen = mahdollinen.substring(0,2);
+                        if (mahdollinen.contains("" + x + y)) {
+                            return true;
+                        }
                     }
+
                 }
             }
 

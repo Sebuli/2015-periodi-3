@@ -1,6 +1,6 @@
 package ChessMaster;
 
-import AI.RandomAI;
+import AI.DeepShoe;
 import Nappulat.Kuningatar;
 import Nappulat.Nappula;
 import java.awt.BorderLayout;
@@ -16,6 +16,7 @@ import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.AbstractAction;
@@ -28,6 +29,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
+import javax.swing.SwingWorker;
 import javax.swing.border.EmptyBorder;
 
 /**
@@ -45,7 +47,7 @@ public class Kayttoliittyma {
     private final JLabel viesti = new JLabel("");
     private static final String COLS = "ABCDEFGH";
     private Pelilaudanpiirtaja piirtaja;
-    private RandomAI randomAI;
+    private DeepShoe tekoaly;
 
     private boolean onkoMustaRandomAIpaalla;
     private boolean onkoValkoinenRandomAIpaalla;
@@ -75,7 +77,7 @@ public class Kayttoliittyma {
         onkoNaytaMahdollisetSiirrot = false;
         onkoMustaRandomAIpaalla = false;
         onkoValkoinenRandomAIpaalla = false;
-        randomAI = new RandomAI();
+        tekoaly = new DeepShoe();
 
         gui.setBorder(new EmptyBorder(5, 5, 5, 5));
         JToolBar tools = new JToolBar();
@@ -187,6 +189,14 @@ public class Kayttoliittyma {
 
                 } else {
                     onkoMustaRandomAIpaalla = true;
+                    if (!valkoisenVuoro) {
+                        String siirto = tekoaly.bestMove("musta", pelilauta.getRuudukko());
+                        ekaX = Integer.parseInt("" + siirto.charAt(0));
+                        ekaY = Integer.parseInt("" + siirto.charAt(1));
+                        tokaX = Integer.parseInt("" + siirto.charAt(2));
+                        tokaY = Integer.parseInt("" + siirto.charAt(3));
+                        siirra();
+                    }
 
                 }
             }
@@ -229,6 +239,14 @@ public class Kayttoliittyma {
                 } else {
                     onkoValkoinenRandomAIpaalla = true;
 
+                    if (valkoisenVuoro) {
+                        String siirto = tekoaly.bestMove("valkoinen", pelilauta.getRuudukko());
+                        ekaX = Integer.parseInt("" + siirto.charAt(0));
+                        ekaY = Integer.parseInt("" + siirto.charAt(1));
+                        tokaX = Integer.parseInt("" + siirto.charAt(2));
+                        tokaY = Integer.parseInt("" + siirto.charAt(3));
+                        siirra();
+                    }
                 }
             }
         });
@@ -236,8 +254,8 @@ public class Kayttoliittyma {
         naytaMahdollisetSiirrot.setText(
                 "Enable help");
 
-        mustaRandomAI.setText("Black Random AI");
-        valkoinenRandomAI.setText("White Random AI");
+        mustaRandomAI.setText("Black AI");
+        valkoinenRandomAI.setText("White AI");
 
         tools.add(naytaMahdollisetSiirrot);
         tools.add(mustaRandomAI);
@@ -382,7 +400,7 @@ public class Kayttoliittyma {
     /**
      * Siirtaa nappulan ekaX,ekaY sijainnista tokaX,tokaY sijaintiin.
      */
-    private void siirra(){
+    private void siirra() {
         pelilauta.getNappula(ekaX, ekaY).kasvataSiirtojenMaaraa();
         pelilauta.siirra(ekaX, ekaY, tokaX, tokaY);
         pelilauta.otaEnPassantMahdollisuusPois();
@@ -395,6 +413,7 @@ public class Kayttoliittyma {
             pelilauta.asetaNappula(tokaX, tokaY, new Kuningatar("musta"));
         }
         piirtaja.varitaPelilauta(ruudukko);
+
         ekaX = -1;
         ekaY = -1;
         tokaX = -1;
@@ -402,6 +421,7 @@ public class Kayttoliittyma {
 
         viesti.setText("");
         piirtaja.piirraNappulat(ruudukko, pelilauta);
+
         if (pelilauta.onkoShakkiMatti("valkoinen") || pelilauta.onkoShakkiMatti("musta")) {
             lopetaPeli();
             return;
@@ -422,23 +442,65 @@ public class Kayttoliittyma {
         }
 
         if ((!valkoisenVuoro && onkoMustaRandomAIpaalla) || (valkoisenVuoro && onkoValkoinenRandomAIpaalla)) {
-            
-            String siirto = "";
+
+            String vari1 = "";
             if (valkoisenVuoro) {
-                siirto = randomAI.haeSiirto(pelilauta, "valkoinen");
+                vari1 = "valkoinen";
             } else {
-                siirto = randomAI.haeSiirto(pelilauta, "musta");
+                vari1 = "musta";
             }
+
+            final String vari = vari1;
+
+            SwingWorker worker = new SwingWorker() {
+
+                @Override
+                protected String doInBackground() throws Exception {
+                    DeepShoe tekoaly = new DeepShoe();
+                    String siirto = tekoaly.bestMove(vari, pelilauta.getRuudukko());
+
+                    return siirto;
+                }
+
+            };
+
+            worker.execute();
+
+            viesti.setText("Thinking.");
+
+            while (!worker.isDone()) {
+
+                if (viesti.getText().equals("Thinking.")) {
+                    viesti.setText("Thinking..");
+                } else if (viesti.getText().equals("Thinking..")) {
+                    viesti.setText("Thinking...");
+                } else {
+                    viesti.setText("Thinking.");
+                }
+            }
+
+            String siirto = "";
+
+            try {
+                siirto = (String) worker.get();
+            } catch (InterruptedException ex) {
+                Logger.getLogger(Kayttoliittyma.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (ExecutionException ex) {
+                Logger.getLogger(Kayttoliittyma.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
             ekaX = Integer.parseInt("" + siirto.charAt(0));
             ekaY = Integer.parseInt("" + siirto.charAt(1));
             tokaX = Integer.parseInt("" + siirto.charAt(2));
             tokaY = Integer.parseInt("" + siirto.charAt(3));
 
-            if ( (pelilauta.onkoShakkiMatti("valkoinen") || pelilauta.onkoShakkiMatti("musta")) ||
-                    (pelilauta.siirtojenMaara() > 50 && onkoMustaRandomAIpaalla && onkoValkoinenRandomAIpaalla)) {
+            if ((pelilauta.onkoShakkiMatti(
+                    "valkoinen") || pelilauta.onkoShakkiMatti("musta"))
+                    || (pelilauta.siirtojenMaara() > 2000 && onkoMustaRandomAIpaalla && onkoValkoinenRandomAIpaalla)) {
                 lopetaPeli();
                 return;
-            } 
+            }
+
             siirra();
 
         }
@@ -479,9 +541,13 @@ public class Kayttoliittyma {
                                 tokaY = t;
 
                                 ArrayList<String> mahdollisetSiirrot = pelilauta.getNappula(ekaX, ekaY).mahdollisetSiirrot(ekaX, ekaY, pelilauta.getRuudukko());
-                                if (mahdollisetSiirrot.contains("" + tokaX + tokaY)) {
-                                    siirra();
-                                    break;
+
+                                for (String mahdollinen : mahdollisetSiirrot) {
+                                    mahdollinen = mahdollinen.substring(0, 2);
+                                    if (mahdollinen.contains("" + tokaX + tokaY)) {
+                                        siirra();
+                                        break;
+                                    }
                                 }
                                 piirtaja.varitaPelilauta(ruudukko);
                                 if (ekaX != tokaX || ekaY != tokaY) {
