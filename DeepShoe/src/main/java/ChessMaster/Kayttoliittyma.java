@@ -194,7 +194,7 @@ public class Kayttoliittyma {
                 } else {
                     onkoMustaRandomAIpaalla = true;
                     if (!valkoisenVuoro) {
-                        String siirto = tekoaly.bestMove("musta", pelilauta.getRuudukko());
+                        String siirto = tekoaly.bestMove("musta", pelilauta.getRuudukko(), pelilauta);
                         ekaX = Integer.parseInt("" + siirto.charAt(0));
                         ekaY = Integer.parseInt("" + siirto.charAt(1));
                         tokaX = Integer.parseInt("" + siirto.charAt(2));
@@ -244,7 +244,7 @@ public class Kayttoliittyma {
                     onkoValkoinenRandomAIpaalla = true;
 
                     if (valkoisenVuoro) {
-                        String siirto = tekoaly.bestMove("valkoinen", pelilauta.getRuudukko());
+                        String siirto = tekoaly.bestMove("valkoinen", pelilauta.getRuudukko(), pelilauta);
                         ekaX = Integer.parseInt("" + siirto.charAt(0));
                         ekaY = Integer.parseInt("" + siirto.charAt(1));
                         tokaX = Integer.parseInt("" + siirto.charAt(2));
@@ -407,9 +407,14 @@ public class Kayttoliittyma {
      * Siirtaa nappulan ekaX,ekaY sijainnista tokaX,tokaY sijaintiin.
      */
     private void siirra() {
-        
-        if ( pelilauta.getNappula(ekaX, ekaY) == null){
+
+        if (pelilauta.getNappula(ekaX, ekaY) == null) {
             return;
+        }
+        if (valkoisenVuoro) {
+            pelilauta.asetaViimeSiirto(ekaX, ekaY, tokaX, tokaY, "valkoinen");
+        } else {
+            pelilauta.asetaViimeSiirto(ekaX, ekaY, tokaX, tokaY, "musta");
         }
 
         pelilauta.getNappula(ekaX, ekaY).kasvataSiirtojenMaaraa();
@@ -468,7 +473,7 @@ public class Kayttoliittyma {
                 @Override
                 protected String doInBackground() throws Exception {
                     peliAlkanut = false;
-                    String siirto = tekoaly.bestMove(vari, pelilauta.getRuudukko());
+                    String siirto = tekoaly.bestMove(vari, pelilauta.getRuudukko(), pelilauta);
                     return siirto;
                 }
 
@@ -484,6 +489,11 @@ public class Kayttoliittyma {
                     } catch (ExecutionException ex) {
                         Logger.getLogger(Kayttoliittyma.class.getName()).log(Level.SEVERE, null, ex);
                     }
+
+                    if (pelilauta.onkoShakkiMatti("musta") || pelilauta.onkoShakkiMatti("valkoinen")) {
+                        lopetaPeli();
+                    }
+
                     if (!siirto.equals("")) {
 
                         ekaX = Integer.parseInt("" + siirto.charAt(0));
@@ -498,9 +508,9 @@ public class Kayttoliittyma {
                         siirra();
 
                     } else if (siirto.equals("")) {
-                            
-                            return;
-                       
+
+                        worker.execute();
+
                     }
 
                 }
@@ -554,7 +564,7 @@ public class Kayttoliittyma {
 
                                 for (String mahdollinen : mahdollisetSiirrot) {
                                     mahdollinen = mahdollinen.substring(0, 2);
-                                    if (pelilauta.getNappula(i, t) != null && (pelilauta.getNappula(i, t).onkoTyyppi(Nappula.Tyyppi.MKUNINGAS) || pelilauta.getNappula(i, t).onkoTyyppi(Nappula.Tyyppi.VKUNINGAS))){
+                                    if (pelilauta.getNappula(i, t) != null && (pelilauta.getNappula(i, t).onkoTyyppi(Nappula.Tyyppi.MKUNINGAS) || pelilauta.getNappula(i, t).onkoTyyppi(Nappula.Tyyppi.VKUNINGAS))) {
                                         lopetaPeli();
                                     }
                                     if (mahdollinen.contains("" + tokaX + tokaY)) {

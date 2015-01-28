@@ -50,8 +50,8 @@ public class DeepShoeTest {
      */
     @Test
     public void testBestMove() {
-        assertNotNull(deepShoe.bestMove("valkoinen", pelilauta.getRuudukko()));
-        assertNotNull(deepShoe.bestMove("musta", pelilauta.getRuudukko()));
+        assertNotNull(deepShoe.bestMove("valkoinen", pelilauta.getRuudukko(), pelilauta));
+        assertNotNull(deepShoe.bestMove("musta", pelilauta.getRuudukko(), pelilauta));
     }
 
     /**
@@ -119,7 +119,7 @@ public class DeepShoeTest {
      */
     @Test
     public void testAllMoves() {
-        assertNotNull(deepShoe.bestMove("musta", pelilauta.getRuudukko()));
+        assertNotNull(deepShoe.bestMove("musta", pelilauta.getRuudukko(), pelilauta));
     }
  
     @Test

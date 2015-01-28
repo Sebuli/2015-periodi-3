@@ -9,6 +9,7 @@ import ChessMaster.Pelilauta;
 import ChessMaster.Ruutu;
 import Nappulat.Nappula;
 import java.util.ArrayList;
+import java.util.Random;
 
 /**
  * DeepShoe hoitaa alpha-beta karsinnan.
@@ -42,7 +43,7 @@ public class DeepShoe {
      * @param pelilauta Pelilauta josta saamme siirron
      * @return Paras siirto
      */
-    public String bestMove(String vari, Ruutu[][] ruudukko) {
+    public String bestMove(String vari, Ruutu[][] ruudukko, Pelilauta pelilauta) {
 
         Double max = -1. / 0.;
         Double min = 1. / 0.;
@@ -51,11 +52,17 @@ public class DeepShoe {
 
         ArrayList<String> allMoves = allMoves(ruudukko, vari);
 
-        Pelilauta pelilauta = new Pelilauta();
+        
         pelilauta.setRuudukko(ruudukko);
 
         if (allMoves.isEmpty()) {
             return "";
+        }
+        
+        if ( pelilauta.onkoToistanutSiirron(vari, ruudukko, pelilauta)){
+            Random rand = new Random();
+            int randomLuku = rand.nextInt(allMoves.size()-1);
+            return allMoves.get(randomLuku).substring(2, 4) + allMoves.get(randomLuku).substring(0, 2);
         }
 
         for (String move : allMoves) {
@@ -304,5 +311,7 @@ public class DeepShoe {
         }
         return allMoves;
     }
+
+    
 
 }
