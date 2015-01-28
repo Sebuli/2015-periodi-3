@@ -9,7 +9,10 @@ import ChessMaster.Pelilauta;
 import ChessMaster.Ruutu;
 import java.util.ArrayList;
 import static junit.framework.Assert.assertNotNull;
+import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -20,6 +23,8 @@ public class DeepShoeTest {
     
     public Pelilauta pelilauta;
     public DeepShoe deepShoe;
+
+    
     
     @Before
     public void setUp() {
@@ -34,8 +39,10 @@ public class DeepShoeTest {
         pelilauta.siirra(6, 7, 3, 7);
         pelilauta.siirra(1, 6, 3, 6);
         pelilauta.getNappula(3, 7).asetaSiirtojenMaaraa(2);
+        
+        
     }
-    
+
     
 
     /**
@@ -43,8 +50,6 @@ public class DeepShoeTest {
      */
     @Test
     public void testBestMove() {
-        
-        
         assertNotNull(deepShoe.bestMove("valkoinen", pelilauta.getRuudukko()));
         assertNotNull(deepShoe.bestMove("musta", pelilauta.getRuudukko()));
     }
@@ -54,7 +59,6 @@ public class DeepShoeTest {
      */
     @Test
     public void testAlphaBetaMinMusta() {
-        
         assertNotNull(deepShoe.alphaBetaMin(pelilauta.getRuudukko(), "musta", 0, Double.NaN, Double.NaN));
     }
     
@@ -63,7 +67,6 @@ public class DeepShoeTest {
      */
     @Test
     public void testAlphaBetaMinValkoinen() {
-        
         assertNotNull(deepShoe.alphaBetaMin(pelilauta.getRuudukko(), "valkoinen", 0, Double.NaN, Double.NaN));
     }
 
@@ -118,5 +121,21 @@ public class DeepShoeTest {
     public void testAllMoves() {
         assertNotNull(deepShoe.bestMove("musta", pelilauta.getRuudukko()));
     }
+ 
+    @Test
+    public void testAlphaBetaKunShakkiMatti() {
+        pelilauta.uusiPeli();
+        pelilauta.siirra(6, 5, 1, 5);
+        pelilauta.siirra(7, 3, 0, 3);
+        pelilauta.siirra(0, 7, 7, 3);
+        pelilauta.siirra(0, 0, 6, 3);
+        assertNotNull(deepShoe.alphaBetaMax(pelilauta.getRuudukko(), "valkoinen", 1, Double.MAX_VALUE, Double.MIN_VALUE));
+        assertNotNull(deepShoe.alphaBetaMin(pelilauta.getRuudukko(), "valkoinen", 1, Double.MAX_VALUE, Double.MIN_VALUE));
+        assertNotNull(deepShoe.alphaBetaMax(pelilauta.getRuudukko(), "musta", 1, Double.MAX_VALUE, Double.MIN_VALUE));
+        assertNotNull(deepShoe.alphaBetaMin(pelilauta.getRuudukko(), "musta", 1, Double.MAX_VALUE, Double.MIN_VALUE));
+    }
+
+    
+    
     
 }

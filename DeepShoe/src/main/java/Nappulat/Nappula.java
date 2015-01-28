@@ -37,7 +37,7 @@ public class Nappula {
 
     public Nappula(String vari) {
         this.vari = vari;
-        siirtojenMaara = 0;
+        siirtojenMaara = 1;
     }
 
     public String getVari() {
@@ -60,7 +60,10 @@ public class Nappula {
      * @return totuusarvon joka kertoo ovatko nappulat samaa varia
      */
     public boolean onkoSamaVari(Nappula nappula) {
-        return vari.equals(nappula.getVari());
+        if (nappula != null) {
+            return vari.equals(nappula.getVari());
+        }
+        return false;
     }
 
     /**
@@ -74,7 +77,14 @@ public class Nappula {
      * @return lista mahdollisista siirroista nappulalle
      */
     public ArrayList<String> mahdollisetSiirrot(int x, int y, Ruutu[][] ruudukko) {
-        ArrayList<String> siirrot = new ArrayList<>();
+
+        ArrayList<String> siirrot = new ArrayList<String>();
+        
+        if (ruudukko[x][y].getNappula() == null) {
+            return siirrot;
+        }
+
+        
         Pelilauta kopioLauta = new Pelilauta();
         kopioLauta.setRuudukko(ruudukko);
         String vari = ruudukko[x][y].getNappula().getVari();
@@ -86,23 +96,13 @@ public class Nappula {
         kaikkiMahdollisetSiirrot.addAll(siirettavaNappula.kaikkiMahdollisetSiirrot(x, y, ruudukko));
 
         for (String siirto : kaikkiMahdollisetSiirrot) {
-            
-            
+
             int uusix = Integer.parseInt("" + siirto.charAt(0));
             int uusiy = Integer.parseInt("" + siirto.charAt(1));
             
-            if (ruudukko[uusix][uusiy].getNappula() == null && (ruudukko[x][y].getNappula().getTyyppi() == Nappula.Tyyppi.VSOTILAS
-                    || ruudukko[x][y].getNappula().getTyyppi() == Nappula.Tyyppi.MSOTILAS) && uusiy != y) {
+            
 
-                Nappula nappula = ruudukko[x][uusiy].getNappula();
-                kopioLauta.siirra(x, y, uusix, uusiy);
-                if (!kopioLauta.onkoShakki(vari)) {
-                    siirrot.add(siirto + (x) + (y));
-                }
-                kopioLauta.siirra(uusix, uusiy, x, y);
-                ruudukko[x][uusiy].asetaNappula(nappula);
-
-            } else if (ruudukko[uusix][uusiy].getNappula() == null) {
+            if (ruudukko[uusix][uusiy].getNappula() == null) {
                 kopioLauta.siirra(x, y, uusix, uusiy);
                 if (!kopioLauta.onkoShakki(vari)) {
                     siirrot.add(siirto + (x) + (y));
@@ -134,7 +134,7 @@ public class Nappula {
     public void kasvataSiirtojenMaaraa() {
         siirtojenMaara += 1;
     }
-    
+
     public void asetaSiirtojenMaaraa(int i) {
         siirtojenMaara = i;
     }

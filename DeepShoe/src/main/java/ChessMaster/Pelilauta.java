@@ -26,11 +26,14 @@ public class Pelilauta {
      */
     private Ruutu[][] ruudukko;
 
+    private boolean endGame;
+
     /**
      * Metodi kutsuu kahta metodia ja ne tekevÃ¤t uuden pelilaudan jossa on 64
      * nappulaa.
      */
     public void uusiPeli() {
+        endGame = false;
         luoRuudukko();
         lisaaNappulatLaudalle();
 
@@ -105,22 +108,17 @@ public class Pelilauta {
     public void siirra(int vanhaX, int vanhaY, int uusiX, int uusiY) {
 
         Nappula nappula = getNappula(vanhaX, vanhaY);
+        if (nappula != null) {
 
-        if (getNappula(uusiX, uusiY) == null) {
-            if (vanhaX == 4 && nappula.getTyyppi() == Nappula.Tyyppi.MSOTILAS && uusiY != vanhaY
-                    && getNappula(uusiX - 1, uusiY) != null && getNappula(uusiX - 1, uusiY).getTyyppi() == Nappula.Tyyppi.VSOTILAS) {
-                poistaNappula(uusiX - 1, uusiY);
-            } else if (vanhaX == 3 && nappula.getTyyppi() == Nappula.Tyyppi.VSOTILAS && uusiY != vanhaY
-                    && getNappula(uusiX + 1, uusiY) != null && getNappula(uusiX + 1, uusiY).getTyyppi() == Nappula.Tyyppi.MSOTILAS) {
-                poistaNappula(uusiX + 1, uusiY);
+            if (getNappula(uusiX, uusiY) == null) {
+                poistaNappula(vanhaX, vanhaY);
+                asetaNappula(uusiX, uusiY, nappula);
+
+            } else if (!nappula.onkoSamaVari(getNappula(uusiX, uusiY))) {
+                poistaNappula(vanhaX, vanhaY);
+                poistaNappula(uusiX, uusiY);
+                asetaNappula(uusiX, uusiY, nappula);
             }
-            poistaNappula(vanhaX, vanhaY);
-            asetaNappula(uusiX, uusiY, nappula);
-
-        } else if (!nappula.onkoSamaVari(getNappula(uusiX, uusiY))) {
-            poistaNappula(vanhaX, vanhaY);
-            poistaNappula(uusiX, uusiY);
-            asetaNappula(uusiX, uusiY, nappula);
         }
     }
 
@@ -166,26 +164,30 @@ public class Pelilauta {
             }
         }
 
+        ArrayList<String> kaikkiMahdollisetSiirrot = new ArrayList<>();
+
         for (int i = 0; i <= 7; i++) {
             for (int t = 0; t <= 7; t++) {
                 if (getNappula(i, t) != null && !getNappula(i, t).getVari().equals(vari)) {
                     Pelilauta kopioLauta = new Pelilauta();
                     kopioLauta.setRuudukko(ruudukko);
                     Nappula.Tyyppi tyyppi = getNappula(i, t).getTyyppi();
-                    ArrayList<String> kaikkiMahdollisetSiirrot = new ArrayList<>();
 
                     kaikkiMahdollisetSiirrot.addAll(getNappula(i, t).kaikkiMahdollisetSiirrot(i, t, ruudukko));
-
-                    for (String mahdollinen : kaikkiMahdollisetSiirrot) {
-                        mahdollinen = mahdollinen.substring(0,2);
-                        if (mahdollinen.contains("" + x + y)) {
-                            return true;
-                        }
-                    }
 
                 }
             }
 
+        }
+        if (kaikkiMahdollisetSiirrot.isEmpty()) {
+            return true;
+        }
+
+        for (String mahdollinen : kaikkiMahdollisetSiirrot) {
+            mahdollinen = mahdollinen.substring(0, 2);
+            if (mahdollinen.contains("" + x + y)) {
+                return true;
+            }
         }
         return false;
     }
@@ -199,6 +201,10 @@ public class Pelilauta {
      * tilanteessa
      */
     public boolean onkoShakkiMatti(String vari) {
+
+        if (!onkoShakki(vari)) {
+            return false;
+        }
 
         for (int i = 0; i <= 7; i++) {
             for (int t = 0; t <= 7; t++) {
@@ -243,6 +249,14 @@ public class Pelilauta {
             }
         }
         return summa;
+    }
+
+    public boolean onkoEndgame() {
+        return endGame;
+    }
+
+    public void setEndGame(boolean endGame) {
+        this.endGame = endGame;
     }
 
 }

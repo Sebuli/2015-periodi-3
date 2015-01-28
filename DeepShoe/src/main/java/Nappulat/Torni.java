@@ -43,6 +43,7 @@ public class Torni extends Nappula {
             }
             if (!onkoSamaVari(ruudukko[i][y].getNappula())) {
                 siirrot.add("" + (i) + (y));
+                break;
 
             }
             break;
@@ -56,7 +57,7 @@ public class Torni extends Nappula {
             }
             if (!onkoSamaVari(ruudukko[i][y].getNappula())) {
                 siirrot.add("" + (i) + (y));
-
+                break;
             }
             break;
 
@@ -69,7 +70,7 @@ public class Torni extends Nappula {
             }
             if (!onkoSamaVari(ruudukko[x][i].getNappula())) {
                 siirrot.add("" + (x) + (i));
-
+                break;
             }
             break;
 
@@ -82,7 +83,7 @@ public class Torni extends Nappula {
             }
             if (!onkoSamaVari(ruudukko[x][i].getNappula())) {
                 siirrot.add("" + (x) + (i));
-
+                break;
             }
             break;
 

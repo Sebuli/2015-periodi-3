@@ -12,6 +12,7 @@ import java.util.ArrayList;
 
 /**
  * DeepShoe hoitaa alpha-beta karsinnan.
+ *
  * @author Sebbe
  */
 public class DeepShoe {
@@ -21,6 +22,7 @@ public class DeepShoe {
     private Double bestScore;
     private Evaluator evaluator;
     private String bestMove;
+    
 
     /**
      *
@@ -35,22 +37,26 @@ public class DeepShoe {
 
     /**
      * bestMove palauttaa parhaan mahdollisen siirron
-     * 
+     *
      * @param vari Vari jonka paras siirron me haluamme saada
      * @param pelilauta Pelilauta josta saamme siirron
      * @return Paras siirto
      */
-    public String bestMove(String vari, Ruutu[][] pelilauta) {
+    public String bestMove(String vari, Ruutu[][] ruudukko) {
 
         Double max = -1. / 0.;
         Double min = 1. / 0.;
         int syvyys = 3;
         Double score = 0.0;
 
-        ArrayList<String> allMoves = allMoves(pelilauta, vari);
+        ArrayList<String> allMoves = allMoves(ruudukko, vari);
 
-        Pelilauta kopioLauta = new Pelilauta();
-        kopioLauta.setRuudukko(pelilauta);
+        Pelilauta pelilauta = new Pelilauta();
+        pelilauta.setRuudukko(ruudukko);
+
+        if (allMoves.isEmpty()) {
+            return "";
+        }
 
         for (String move : allMoves) {
 
@@ -59,39 +65,11 @@ public class DeepShoe {
             int uusix = Integer.parseInt("" + move.charAt(0));
             int uusiy = Integer.parseInt("" + move.charAt(1));
 
-            if (pelilauta[uusix][uusiy].getNappula() == null && (pelilauta[x][y].getNappula().getTyyppi() == Nappula.Tyyppi.VSOTILAS
-                    || pelilauta[x][y].getNappula().getTyyppi() == Nappula.Tyyppi.MSOTILAS) && uusiy != y) {
-
-                Nappula nappula = pelilauta[x][uusiy].getNappula();
-                kopioLauta.siirra(x, y, uusix, uusiy);
-                if (vari.equals("musta")) {
-                    score = alphaBetaMax(pelilauta, "valkoinen", syvyys, beta, alpha);
-                } else {
-                    score = alphaBetaMax(pelilauta, "musta", syvyys, beta, alpha);
-                }
-                kopioLauta.siirra(uusix, uusiy, x, y);
-                pelilauta[x][uusiy].asetaNappula(nappula);
-
-            } else if (pelilauta[uusix][uusiy].getNappula() == null) {
-                kopioLauta.siirra(x, y, uusix, uusiy);
-                if (vari.equals("musta")) {
-                    score = alphaBetaMax(pelilauta, "valkoinen", syvyys, beta, alpha);
-                } else {
-                    score = alphaBetaMax(pelilauta, "musta", syvyys, beta, alpha);
-                }
-                kopioLauta.siirra(uusix, uusiy, x, y);
-
-            } else if (!pelilauta[uusix][uusiy].getNappula().onkoSamaVari(pelilauta[x][y].getNappula())) {
-                Nappula nappula = pelilauta[uusix][uusiy].getNappula();
-                kopioLauta.siirra(x, y, uusix, uusiy);
-                if (vari.equals("musta")) {
-                    score = alphaBetaMax(pelilauta, "valkoinen", syvyys, beta, alpha);
-                } else {
-                    score = alphaBetaMax(pelilauta, "musta", syvyys, beta, alpha);
-                }
-                kopioLauta.siirra(uusix, uusiy, x, y);
-                pelilauta[uusix][uusiy].asetaNappula(nappula);
+            if (move.equals("") || ruudukko[x][y].getNappula() == null) {
+                continue;
             }
+
+            score = siirra(ruudukko, pelilauta, vari, syvyys, x, y, uusix, uusiy);
 
             if (max < score && vari.equals("valkoinen")) {
                 bestMove = move.substring(2, 4) + move.substring(0, 2);
@@ -106,8 +84,50 @@ public class DeepShoe {
     }
 
     /**
+     * Metodi siirtaa nappulan ja kutsuu sen jälkeen alphbetaMax metodia ja palauttaa parhaan siirron arvon
+     * ja siirtaa lopuksi nappulan takaisin
+     * @param ruudukko Ruudukko jossa kaikki nappulat ovat
+     * @param pelilauta Pelilauta jossa tehdään siirto
+     * @param vari Siirettavan nappulan vari
+     * @param syvyys Syvyys jolla halutaan suorittaa alphabetaa
+     * @param x Nappulan x sijainti
+     * @param y Nappulan y sijainti
+     * @param uusix x sijainti jonne nappula siirretaan
+     * @param uusiy y sijainti jonne nappula siirretaan
+     * @return Parhaan siirron arvo
+     */
+    
+    private Double siirra(Ruutu[][] ruudukko, Pelilauta pelilauta, String vari, int syvyys, int x, int y, int uusix, int uusiy) {
+        
+        Double score = 0.0;
+        
+        if (ruudukko[uusix][uusiy].getNappula() == null) {
+            pelilauta.siirra(x, y, uusix, uusiy);
+            if (vari.equals("musta")) {
+                score = alphaBetaMax(ruudukko, "valkoinen", syvyys, beta, alpha);
+            } else {
+                score = alphaBetaMax(ruudukko, "musta", syvyys, beta, alpha);
+            }
+            pelilauta.siirra(uusix, uusiy, x, y);
+
+        } else if (!ruudukko[uusix][uusiy].getNappula().onkoSamaVari(ruudukko[x][y].getNappula())) {
+            Nappula nappula = ruudukko[uusix][uusiy].getNappula();
+            pelilauta.siirra(x, y, uusix, uusiy);
+            if (vari.equals("musta")) {
+                score = alphaBetaMax(ruudukko, "valkoinen", syvyys, beta, alpha);
+            } else {
+                score = alphaBetaMax(ruudukko, "musta", syvyys, beta, alpha);
+            }
+            pelilauta.siirra(uusix, uusiy, x, y);
+            ruudukko[uusix][uusiy].asetaNappula(nappula);
+        }
+        
+        return score;
+    }
+
+    /**
      *
-     * @param pelilauta Pelilauta josta halutaan löytää paras siirto
+     * @param pelilauta Pelilauta josta halutaan lÃ¶ytÃ¤Ã¤ paras siirto
      * @param vari Vari jonka siirto halutaan
      * @param syvyys Tamanhetkinen syvyys
      * @param beta
@@ -117,9 +137,6 @@ public class DeepShoe {
     public Double alphaBetaMin(Ruutu[][] pelilauta, String vari, int syvyys, Double beta, Double alpha) {
 
         if (syvyys == 0) {
-            if ( vari.equals("musta")){
-                return evaluator.eval(pelilauta);
-            }
             return -evaluator.eval(pelilauta);
         }
         ArrayList<String> allMoves = allMoves(pelilauta, vari);
@@ -128,6 +145,18 @@ public class DeepShoe {
         kopioLauta.setRuudukko(pelilauta);
 
         bestScore = Double.MAX_VALUE;
+        String toinenVari = "";
+        if (vari.equals("musta")) {
+            toinenVari = "valkoinen";
+        } else {
+            toinenVari = "musta";
+        }
+
+        if (kopioLauta.onkoShakkiMatti(vari)) {
+            return -50000.0;
+        } else if (kopioLauta.onkoShakkiMatti(toinenVari)) {
+            return 50000.0;
+        }
 
         for (String move : allMoves) {
 
@@ -135,21 +164,12 @@ public class DeepShoe {
             int y = Integer.parseInt("" + move.charAt(3));
             int uusix = Integer.parseInt("" + move.charAt(0));
             int uusiy = Integer.parseInt("" + move.charAt(1));
+            
+            if (move.equals("") || pelilauta[x][y].getNappula() == null) {
+                continue;
+            }
 
-            if (pelilauta[uusix][uusiy].getNappula() == null && (pelilauta[x][y].getNappula().getTyyppi() == Nappula.Tyyppi.VSOTILAS
-                    || pelilauta[x][y].getNappula().getTyyppi() == Nappula.Tyyppi.MSOTILAS) && uusiy != y) {
-
-                Nappula nappula = pelilauta[x][uusiy].getNappula();
-                kopioLauta.siirra(x, y, uusix, uusiy);
-                if (vari.equals("musta")) {
-                    bestScore = alphaBetaMin(pelilauta, "valkoinen", syvyys-1, beta, alpha);
-                } else {
-                    bestScore = alphaBetaMax(pelilauta, "musta", syvyys-1, beta, alpha);
-                }
-                kopioLauta.siirra(uusix, uusiy, x, y);
-                pelilauta[x][uusiy].asetaNappula(nappula);
-
-            } else if (pelilauta[uusix][uusiy].getNappula() == null) {
+            if (pelilauta[uusix][uusiy].getNappula() == null) {
                 kopioLauta.siirra(x, y, uusix, uusiy);
                 if (vari.equals("musta")) {
                     bestScore = Math.min(bestScore, alphaBetaMax(pelilauta, "valkoinen", syvyys - 1, beta, alpha));
@@ -176,15 +196,18 @@ public class DeepShoe {
 
                 beta = bestScore;
             }
+
         }
 
         return bestScore;
 
     }
+    
+  
 
     /**
      *
-     * @param pelilauta Pelilauta josta halutaan löytää paras siirto
+     * @param pelilauta Pelilauta josta halutaan lÃ¶ytÃ¤Ã¤ paras siirto
      * @param vari Vari jonka siirto halutaan
      * @param syvyys Tamanhetkinen syvyys
      * @param beta
@@ -195,9 +218,7 @@ public class DeepShoe {
     public Double alphaBetaMax(Ruutu[][] pelilauta, String vari, int syvyys, Double beta, Double alpha) {
 
         if (syvyys == 0) {
-            if ( vari.equals("musta")){
-                return -evaluator.eval(pelilauta);
-            }
+
             return evaluator.eval(pelilauta);
         }
 
@@ -207,6 +228,18 @@ public class DeepShoe {
         kopioLauta.setRuudukko(pelilauta);
 
         bestScore = Double.MIN_VALUE;
+        String toinenVari = "";
+        if (vari.equals("musta")) {
+            toinenVari = "valkoinen";
+        } else {
+            toinenVari = "musta";
+        }
+
+        if (kopioLauta.onkoShakkiMatti(vari)) {
+            return -50000.0;
+        } else if (kopioLauta.onkoShakkiMatti(toinenVari)) {
+            return 50000.0;
+        }
 
         for (String move : allMoves) {
 
@@ -215,20 +248,11 @@ public class DeepShoe {
             int uusix = Integer.parseInt("" + move.charAt(0));
             int uusiy = Integer.parseInt("" + move.charAt(1));
 
-            if (pelilauta[uusix][uusiy].getNappula() == null && (pelilauta[x][y].getNappula().getTyyppi() == Nappula.Tyyppi.VSOTILAS
-                    || pelilauta[x][y].getNappula().getTyyppi() == Nappula.Tyyppi.MSOTILAS) && uusiy != y) {
+            if (move.equals("") || pelilauta[x][y].getNappula() == null) {
+                continue;
+            }
 
-                Nappula nappula = pelilauta[x][uusiy].getNappula();
-                kopioLauta.siirra(x, y, uusix, uusiy);
-                if (vari.equals("musta")) {
-                    bestScore = alphaBetaMin(pelilauta, "valkoinen", syvyys-1, beta, alpha);
-                } else {
-                    bestScore = alphaBetaMax(pelilauta, "musta", syvyys-1, beta, alpha);
-                }
-                kopioLauta.siirra(uusix, uusiy, x, y);
-                pelilauta[x][uusiy].asetaNappula(nappula);
-
-            } else if (pelilauta[uusix][uusiy].getNappula() == null) {
+            if (pelilauta[uusix][uusiy].getNappula() == null) {
                 kopioLauta.siirra(x, y, uusix, uusiy);
                 if (vari.equals("musta")) {
                     bestScore = Math.max(bestScore, alphaBetaMin(pelilauta, "valkoinen", syvyys - 1, beta, alpha));
@@ -256,12 +280,14 @@ public class DeepShoe {
 
                 alpha = bestScore;
             }
+
         }
         return bestScore;
     }
 
     /**
      * allMoves hakee pelilaudasta kaikki tietyn varin siirrot
+     *
      * @param pelilauta Pelilauta josta siirrot otetaan
      * @param vari Vari jonka siirrot halutaan
      * @return Lista kaikista siirrosta

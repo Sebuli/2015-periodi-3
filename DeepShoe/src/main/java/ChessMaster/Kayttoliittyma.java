@@ -16,6 +16,7 @@ import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -48,12 +49,15 @@ public class Kayttoliittyma {
     private static final String COLS = "ABCDEFGH";
     private Pelilaudanpiirtaja piirtaja;
     private DeepShoe tekoaly;
+    private String[] kirjaimet = {"A", "B", "C", "D", "E", "F", "G", "H"};
+    private JLabel AIpreviousMove = new JLabel("");
 
     private boolean onkoMustaRandomAIpaalla;
     private boolean onkoValkoinenRandomAIpaalla;
     private boolean onkoNaytaMahdollisetSiirrot;
     private boolean valkoisenVuoro;
     private boolean peliAlkanut;
+    private SwingWorker worker;
 
     private int ekaX;
     private int ekaY;
@@ -268,6 +272,8 @@ public class Kayttoliittyma {
 
         tools.add(viesti);
 
+        tools.add(AIpreviousMove);
+
         shakkiLauta = new JPanel(new GridLayout(0, 9)) {
 
             @Override
@@ -401,6 +407,11 @@ public class Kayttoliittyma {
      * Siirtaa nappulan ekaX,ekaY sijainnista tokaX,tokaY sijaintiin.
      */
     private void siirra() {
+        
+        if ( pelilauta.getNappula(ekaX, ekaY) == null){
+            return;
+        }
+
         pelilauta.getNappula(ekaX, ekaY).kasvataSiirtojenMaaraa();
         pelilauta.siirra(ekaX, ekaY, tokaX, tokaY);
         pelilauta.otaEnPassantMahdollisuusPois();
@@ -452,57 +463,56 @@ public class Kayttoliittyma {
 
             final String vari = vari1;
 
-            SwingWorker worker = new SwingWorker() {
+            worker = new SwingWorker() {
 
                 @Override
                 protected String doInBackground() throws Exception {
-                    DeepShoe tekoaly = new DeepShoe();
+                    peliAlkanut = false;
                     String siirto = tekoaly.bestMove(vari, pelilauta.getRuudukko());
-
                     return siirto;
+                }
+
+                @Override
+                protected void done() {
+                    peliAlkanut = true;
+                    String siirto = "";
+
+                    try {
+                        siirto = (String) get();
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(Kayttoliittyma.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (ExecutionException ex) {
+                        Logger.getLogger(Kayttoliittyma.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    if (!siirto.equals("")) {
+
+                        ekaX = Integer.parseInt("" + siirto.charAt(0));
+                        ekaY = Integer.parseInt("" + siirto.charAt(1));
+                        tokaX = Integer.parseInt("" + siirto.charAt(2));
+                        tokaY = Integer.parseInt("" + siirto.charAt(3));
+                        if (valkoisenVuoro) {
+                            AIpreviousMove.setText(" The White AI moved " + kirjaimet[ekaY] + (8 - ekaX) + " to " + kirjaimet[tokaY] + (8 - tokaX));
+                        } else {
+                            AIpreviousMove.setText(" The Black AI moved " + kirjaimet[ekaY] + (8 - ekaX) + " to " + kirjaimet[tokaY] + (8 - tokaX));
+                        }
+                        siirra();
+
+                    } else if (siirto.equals("")) {
+                            
+                            return;
+                       
+                    }
+
                 }
 
             };
 
             worker.execute();
 
-            viesti.setText("Thinking.");
-
-            while (!worker.isDone()) {
-
-                if (viesti.getText().equals("Thinking.")) {
-                    viesti.setText("Thinking..");
-                } else if (viesti.getText().equals("Thinking..")) {
-                    viesti.setText("Thinking...");
-                } else {
-                    viesti.setText("Thinking.");
-                }
-            }
-
-            String siirto = "";
-
-            try {
-                siirto = (String) worker.get();
-            } catch (InterruptedException ex) {
-                Logger.getLogger(Kayttoliittyma.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (ExecutionException ex) {
-                Logger.getLogger(Kayttoliittyma.class.getName()).log(Level.SEVERE, null, ex);
-            }
-
-            ekaX = Integer.parseInt("" + siirto.charAt(0));
-            ekaY = Integer.parseInt("" + siirto.charAt(1));
-            tokaX = Integer.parseInt("" + siirto.charAt(2));
-            tokaY = Integer.parseInt("" + siirto.charAt(3));
-
-            if ((pelilauta.onkoShakkiMatti(
-                    "valkoinen") || pelilauta.onkoShakkiMatti("musta"))
-                    || (pelilauta.siirtojenMaara() > 2000 && onkoMustaRandomAIpaalla && onkoValkoinenRandomAIpaalla)) {
+            if ((pelilauta.onkoShakkiMatti("valkoinen") || pelilauta.onkoShakkiMatti("musta"))) {
                 lopetaPeli();
                 return;
             }
-
-            siirra();
-
         }
     }
 
@@ -544,6 +554,9 @@ public class Kayttoliittyma {
 
                                 for (String mahdollinen : mahdollisetSiirrot) {
                                     mahdollinen = mahdollinen.substring(0, 2);
+                                    if (pelilauta.getNappula(i, t) != null && (pelilauta.getNappula(i, t).onkoTyyppi(Nappula.Tyyppi.MKUNINGAS) || pelilauta.getNappula(i, t).onkoTyyppi(Nappula.Tyyppi.VKUNINGAS))){
+                                        lopetaPeli();
+                                    }
                                     if (mahdollinen.contains("" + tokaX + tokaY)) {
                                         siirra();
                                         break;
