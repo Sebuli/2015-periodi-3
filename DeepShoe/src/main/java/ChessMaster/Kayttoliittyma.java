@@ -16,7 +16,6 @@ import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -58,6 +57,9 @@ public class Kayttoliittyma {
     private boolean valkoisenVuoro;
     private boolean peliAlkanut;
     private SwingWorker worker;
+    
+    private int valkoinenSyvyys;
+    private int mustaSyvyys;
 
     private int ekaX;
     private int ekaY;
@@ -82,6 +84,8 @@ public class Kayttoliittyma {
         onkoMustaRandomAIpaalla = false;
         onkoValkoinenRandomAIpaalla = false;
         tekoaly = new DeepShoe();
+        valkoinenSyvyys = 4;
+        mustaSyvyys = 2;
 
         gui.setBorder(new EmptyBorder(5, 5, 5, 5));
         JToolBar tools = new JToolBar();
@@ -194,7 +198,7 @@ public class Kayttoliittyma {
                 } else {
                     onkoMustaRandomAIpaalla = true;
                     if (!valkoisenVuoro) {
-                        String siirto = tekoaly.bestMove("musta", pelilauta.getRuudukko(), pelilauta);
+                        String siirto = tekoaly.bestMove("musta", pelilauta.getRuudukko(), pelilauta, mustaSyvyys);
                         ekaX = Integer.parseInt("" + siirto.charAt(0));
                         ekaY = Integer.parseInt("" + siirto.charAt(1));
                         tokaX = Integer.parseInt("" + siirto.charAt(2));
@@ -244,7 +248,7 @@ public class Kayttoliittyma {
                     onkoValkoinenRandomAIpaalla = true;
 
                     if (valkoisenVuoro) {
-                        String siirto = tekoaly.bestMove("valkoinen", pelilauta.getRuudukko(), pelilauta);
+                        String siirto = tekoaly.bestMove("valkoinen", pelilauta.getRuudukko(), pelilauta, valkoinenSyvyys);
                         ekaX = Integer.parseInt("" + siirto.charAt(0));
                         ekaY = Integer.parseInt("" + siirto.charAt(1));
                         tokaX = Integer.parseInt("" + siirto.charAt(2));
@@ -468,62 +472,73 @@ public class Kayttoliittyma {
 
             final String vari = vari1;
 
-            worker = new SwingWorker() {
-
-                @Override
-                protected String doInBackground() throws Exception {
-                    peliAlkanut = false;
-                    String siirto = tekoaly.bestMove(vari, pelilauta.getRuudukko(), pelilauta);
-                    return siirto;
-                }
-
-                @Override
-                protected void done() {
-                    peliAlkanut = true;
-                    String siirto = "";
-
-                    try {
-                        siirto = (String) get();
-                    } catch (InterruptedException ex) {
-                        Logger.getLogger(Kayttoliittyma.class.getName()).log(Level.SEVERE, null, ex);
-                    } catch (ExecutionException ex) {
-                        Logger.getLogger(Kayttoliittyma.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-
-                    if (pelilauta.onkoShakkiMatti("musta") || pelilauta.onkoShakkiMatti("valkoinen")) {
-                        lopetaPeli();
-                    }
-
-                    if (!siirto.equals("")) {
-
-                        ekaX = Integer.parseInt("" + siirto.charAt(0));
-                        ekaY = Integer.parseInt("" + siirto.charAt(1));
-                        tokaX = Integer.parseInt("" + siirto.charAt(2));
-                        tokaY = Integer.parseInt("" + siirto.charAt(3));
-                        if (valkoisenVuoro) {
-                            AIpreviousMove.setText(" The White AI moved " + kirjaimet[ekaY] + (8 - ekaX) + " to " + kirjaimet[tokaY] + (8 - tokaX));
-                        } else {
-                            AIpreviousMove.setText(" The Black AI moved " + kirjaimet[ekaY] + (8 - ekaX) + " to " + kirjaimet[tokaY] + (8 - tokaX));
-                        }
-                        siirra();
-
-                    } else if (siirto.equals("")) {
-
-                        worker.execute();
-
-                    }
-
-                }
-
-            };
-
-            worker.execute();
+            execute(vari);
 
             if ((pelilauta.onkoShakkiMatti("valkoinen") || pelilauta.onkoShakkiMatti("musta"))) {
                 lopetaPeli();
                 return;
             }
         }
+    }
+
+    private synchronized void execute(final String vari) {
+        worker = new SwingWorker() {
+            
+            long time;
+            
+            @Override
+            protected String doInBackground() throws Exception {
+                if (pelilauta.onkoShakkiMatti("musta") || pelilauta.onkoShakkiMatti("valkoinen")) {
+                    lopetaPeli();
+                }
+                time = System.currentTimeMillis();
+                peliAlkanut = false;
+                String siirto = "";
+                if ( vari.equals("valkoinen")){
+                    siirto = tekoaly.bestMove(vari, pelilauta.getRuudukko(), pelilauta, valkoinenSyvyys);
+                } else {
+                    siirto = tekoaly.bestMove(vari, pelilauta.getRuudukko(), pelilauta, mustaSyvyys);
+                }
+                return siirto;
+            }
+            
+            @Override
+            protected void done() {
+                peliAlkanut = true;
+                String siirto = "";
+                
+                try {
+                    siirto = (String) get();
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(Kayttoliittyma.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (ExecutionException ex) {
+                    Logger.getLogger(Kayttoliittyma.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                
+                
+                
+                if (!siirto.equals("")) {
+                    
+                    ekaX = Integer.parseInt("" + siirto.charAt(0));
+                    ekaY = Integer.parseInt("" + siirto.charAt(1));
+                    tokaX = Integer.parseInt("" + siirto.charAt(2));
+                    tokaY = Integer.parseInt("" + siirto.charAt(3));
+                    System.out.println(vari +" siirsi " + kirjaimet[ekaY] + (8 - ekaX) + " to " + kirjaimet[tokaY]  + (8 - tokaX)+ " " + (System.currentTimeMillis() - time)/1000.0 + " sekuntissa");
+                    if (valkoisenVuoro) {
+                        AIpreviousMove.setText(" The White AI moved " + kirjaimet[ekaY] + (8 - ekaX) + " to " + kirjaimet[tokaY] + (8 - tokaX));
+                    } else {
+                        AIpreviousMove.setText(" The Black AI moved " + kirjaimet[ekaY] + (8 - ekaX) + " to " + kirjaimet[tokaY] + (8 - tokaX));
+                    }
+                    siirra();
+                    
+                }
+                
+                
+            }
+            
+        };
+        
+        worker.execute();
     }
 
     public final JComponent getGui() {

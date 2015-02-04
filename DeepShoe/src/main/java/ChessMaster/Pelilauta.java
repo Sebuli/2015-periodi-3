@@ -21,6 +21,12 @@ import java.util.ArrayList;
  */
 public class Pelilauta {
 
+    public Pelilauta() {
+        endGame = false;
+        valkoisetSiirrot = new String[]{"", "", ""};
+        mustatSiirrot = new String[]{"", "", ""};
+    }
+
     /**
      * Kaksiuloitteinen array ruutuja
      */
@@ -36,9 +42,6 @@ public class Pelilauta {
      * nappulaa.
      */
     public void uusiPeli() {
-        valkoisetSiirrot = new String[]{"","",""};
-        mustatSiirrot = new String[]{"","",""};
-        endGame = false;
         luoRuudukko();
         lisaaNappulatLaudalle();
 
@@ -125,23 +128,23 @@ public class Pelilauta {
                 asetaNappula(uusiX, uusiY, nappula);
             }
         }
+
     }
 
     public void asetaViimeSiirto(int x, int y, int uusiX, int uusiY, String vari) {
 
         if (vari.equals("musta")) {
-                mustatSiirrot[2] = mustatSiirrot[1];
-                mustatSiirrot[1] = mustatSiirrot[0];
-                mustatSiirrot[0] = "" + x + y + uusiX + uusiY;
+            mustatSiirrot[2] = mustatSiirrot[1];
+            mustatSiirrot[1] = mustatSiirrot[0];
+            mustatSiirrot[0] = "" + x + y + uusiX + uusiY;
 
-            
         } else {
-                valkoisetSiirrot[2] = valkoisetSiirrot[1];
-                valkoisetSiirrot[1] = valkoisetSiirrot[0];
-                valkoisetSiirrot[0] = "" + x + y + uusiX + uusiY;
-            
+            valkoisetSiirrot[2] = valkoisetSiirrot[1];
+            valkoisetSiirrot[1] = valkoisetSiirrot[0];
+            valkoisetSiirrot[0] = "" + x + y + uusiX + uusiY;
+
         }
-        
+
     }
 
     public String[] getValkoisetSiirrot() {
@@ -151,8 +154,6 @@ public class Pelilauta {
     public String[] getMustatSiirrot() {
         return mustatSiirrot;
     }
-    
-    
 
     public Ruutu[][] getRuudukko() {
         return ruudukko;
@@ -182,18 +183,23 @@ public class Pelilauta {
      * @return Palauttaa totta jos vari parametrin puoli on shakki tilanteessa
      */
     public boolean onkoShakki(String vari) {
-        int x = 0;
-        int y = 0;
+        int x = -1;
+        int y = -1;
 
         for (int i = 0; i <= 7; i++) {
             for (int t = 0; t <= 7; t++) {
-                if (getNappula(i, t) != null && ((vari.equals("musta") && getNappula(i, t).getTyyppi() == Nappula.Tyyppi.MKUNINGAS)
+                if (getNappula(i, t) != null
+                        && ((vari.equals("musta") && getNappula(i, t).getTyyppi() == Nappula.Tyyppi.MKUNINGAS)
                         || vari.equals("valkoinen") && getNappula(i, t).getTyyppi() == Nappula.Tyyppi.VKUNINGAS)) {
                     x = i;
                     y = t;
                     break;
                 }
             }
+        }
+
+        if (x == -1 && y == -1) {
+            return true;
         }
 
         ArrayList<String> kaikkiMahdollisetSiirrot = new ArrayList<>();
@@ -203,7 +209,6 @@ public class Pelilauta {
                 if (getNappula(i, t) != null && !getNappula(i, t).getVari().equals(vari)) {
                     Pelilauta kopioLauta = new Pelilauta();
                     kopioLauta.setRuudukko(ruudukko);
-                    Nappula.Tyyppi tyyppi = getNappula(i, t).getTyyppi();
 
                     kaikkiMahdollisetSiirrot.addAll(getNappula(i, t).kaikkiMahdollisetSiirrot(i, t, ruudukko));
 
@@ -284,21 +289,32 @@ public class Pelilauta {
     }
 
     public boolean onkoEndgame() {
+        int nappuloidenMaara = 0;
+        for (int i = 0; i <= 7; i++) {
+            for (int t = 0; t <= 7; t++) {
+                if (ruudukko[i][t].getNappula() != null) {
+                    nappuloidenMaara++;
+                }
+            }
+        }
+        if (nappuloidenMaara <= 10) {
+            setEndGame(true);
+        }
         return endGame;
     }
 
     public void setEndGame(boolean endGame) {
         this.endGame = endGame;
     }
-    
+
     public boolean onkoToistanutSiirron(String vari, Ruutu[][] ruudukko, Pelilauta pelilauta) {
-       
-        if ( vari.equals("musta") && mustatSiirrot[0].equals(mustatSiirrot[2]) && !mustatSiirrot[2].isEmpty()){
+
+        if (vari.equals("musta") && mustatSiirrot[0].equals(mustatSiirrot[2]) && !mustatSiirrot[2].isEmpty()) {
             return true;
-        } else if (vari.equals("valkoinen") && valkoisetSiirrot[0].equals(valkoisetSiirrot[2]) && !valkoisetSiirrot[2].isEmpty()){
+        } else if (vari.equals("valkoinen") && valkoisetSiirrot[0].equals(valkoisetSiirrot[2]) && !valkoisetSiirrot[2].isEmpty()) {
             return true;
         }
-        
+
         return false;
     }
 

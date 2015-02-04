@@ -87,8 +87,8 @@ public class Nappula {
         
         Pelilauta kopioLauta = new Pelilauta();
         kopioLauta.setRuudukko(ruudukko);
-        String vari = ruudukko[x][y].getNappula().getVari();
-        Nappula.Tyyppi tyyppi = ruudukko[x][y].getNappula().getTyyppi();
+        String nappulanVari = ruudukko[x][y].getNappula().getVari();
+        Nappula.Tyyppi nappulanTyyppi = ruudukko[x][y].getNappula().getTyyppi();
         Nappula siirettavaNappula = ruudukko[x][y].getNappula();
 
         ArrayList<String> kaikkiMahdollisetSiirrot = new ArrayList<>();
@@ -104,7 +104,7 @@ public class Nappula {
 
             if (ruudukko[uusix][uusiy].getNappula() == null) {
                 kopioLauta.siirra(x, y, uusix, uusiy);
-                if (!kopioLauta.onkoShakki(vari)) {
+                if (!kopioLauta.onkoShakki(nappulanVari)) {
                     siirrot.add(siirto + (x) + (y));
                 }
                 kopioLauta.siirra(uusix, uusiy, x, y);
@@ -112,7 +112,7 @@ public class Nappula {
             } else if (!ruudukko[uusix][uusiy].getNappula().onkoSamaVari(ruudukko[x][y].getNappula())) {
                 Nappula nappula = ruudukko[uusix][uusiy].getNappula();
                 kopioLauta.siirra(x, y, uusix, uusiy);
-                if (!kopioLauta.onkoShakki(vari)) {
+                if (!kopioLauta.onkoShakki(nappulanVari)) {
                     siirrot.add(siirto + (x) + (y));
                 }
                 kopioLauta.siirra(uusix, uusiy, x, y);

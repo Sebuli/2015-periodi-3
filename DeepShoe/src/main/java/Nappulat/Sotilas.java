@@ -36,11 +36,13 @@ public class Sotilas extends Nappula {
      */
     @Override
     public ArrayList<String> kaikkiMahdollisetSiirrot(int x, int y, Ruutu[][] ruudukko) {
-        if (ruudukko[x][y].getNappula().getVari().equals("musta")) {
+        
+        if (ruudukko[x][y].getNappula() != null && ruudukko[x][y].getNappula().getVari().equals("musta")) {
             return mahdollisetSiirrotMSotilas(x, y, ruudukko);
-        } else {
+        } else if (ruudukko[x][y].getNappula() != null){
             return mahdollisetSiirrotVSotilas(x, y, ruudukko);
         }
+        return new ArrayList<String>();
     }
 
     /**
