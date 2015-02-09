@@ -209,8 +209,9 @@ public class Pelilauta {
                 if (getNappula(i, t) != null && !getNappula(i, t).getVari().equals(vari)) {
                     Pelilauta kopioLauta = new Pelilauta();
                     kopioLauta.setRuudukko(ruudukko);
-
-                    kaikkiMahdollisetSiirrot.addAll(getNappula(i, t).kaikkiMahdollisetSiirrot(i, t, ruudukko));
+                    if (!getNappula(i, t).kaikkiMahdollisetSiirrot(i, t, ruudukko).isEmpty()) {
+                        kaikkiMahdollisetSiirrot.addAll(getNappula(i, t).kaikkiMahdollisetSiirrot(i, t, ruudukko));
+                    }
 
                 }
             }

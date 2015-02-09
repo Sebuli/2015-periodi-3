@@ -142,10 +142,13 @@ public class Evaluator {
    
  
     /**
-     * Laskee sotilaitten sijaintien arvon
+     * Laskee sotilaitten sijaintien arvon. Ensimmainen if tarkistaa onko sotilaan edessa, samassa sarakkeessa, erivarinen sotilas. 
+     * Jos ei ole niin tama on hyva asia eli lisataan pisteita. Toinen if tarkistaa jos sotilaan jossain diagonaalissa on toinen samanvarinen sotilas,
+     * tama on taas hyva asia joten lisataan pisteita. Viimeinen if tarkistaa onko sotilaan yla- tai alapuolella samanvarinen sotilas, se on
+     * huono asia eli poistetaan pisteita.
      *
      * @param p Ruudukko jonka arvo lasketaan
-     * @return 
+     * @return laskettu arvo
      */
     public int evalSotilasSijainti(Ruutu[][] p) {
         int value = 0;
@@ -206,7 +209,7 @@ public class Evaluator {
      * Laskee ratsujen sijaintien arvon
      *
      * @param p Ruudukko jonka arvo lasketaan
-     * @return 
+     * @return laskettu arvo
      */
     public int evalRatsuSijainti(Ruutu[][] p) {
         int value = 0;
@@ -240,7 +243,7 @@ public class Evaluator {
      * Laskee tornien sijaintien arvon
      *
      * @param p Ruudukko jonka arvo lasketaan
-     * @return 
+     * @return laskettu arvo
      */
     public int evalTorniSijainti(Ruutu[][] p) {
         int value = 0;
@@ -268,7 +271,7 @@ public class Evaluator {
      * Laskee lahettien sijaintien arvon
      *
      * @param p Ruudukko jonka arvo lasketaan
-     * @return 
+     * @return laskettu arvo
      */
     public int evalLahettiSijainti(Ruutu[][] p) {
         int mustat = 0;
@@ -314,7 +317,7 @@ public class Evaluator {
      * Laskee kuningattarien sijaintien arvon
      *
      * @param p Ruudukko jonka arvo lasketaan
-     * @return 
+     * @return laskettu arvo
      */
     public int evalKuningatarSijainti(Ruutu[][] p) {
         int value = 0;
@@ -342,7 +345,7 @@ public class Evaluator {
      * Laskee kuninkaitten sijaintien arvon
      *
      * @param p Ruudukko jonka arvo lasketaan
-     * @return 
+     * @return laskettu arvo
      */
     public int evalKuningasSijainti(Ruutu[][] p) {
         int value = 0;

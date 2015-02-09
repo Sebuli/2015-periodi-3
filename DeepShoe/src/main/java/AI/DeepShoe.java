@@ -36,7 +36,8 @@ public class DeepShoe {
     }
 
     /**
-     * bestMove palauttaa parhaan mahdollisen siirron
+     * bestMove palauttaa parhaan mahdollisen siirron. Se kutsuu alphabetamax, tai min, metodia kaikille siirroille ja
+     * katsoo mika niista on paras.
      *
      * @param vari Vari jonka paras siirron me haluamme saada
      * @param pelilauta Pelilauta josta saamme siirron
@@ -89,7 +90,7 @@ public class DeepShoe {
     }
 
     /**
-     * Metodi siirtaa nappulan ja kutsuu sen jÃ¤lkeen alphbetaMax metodia ja
+     * Metodi siirtaa nappulan ja kutsuu sen jalkeen alphbetaMax metodia ja
      * palauttaa parhaan siirron arvon ja siirtaa lopuksi nappulan takaisin
      *
      * @param ruudukko Ruudukko jossa kaikki nappulat ovat
@@ -132,8 +133,9 @@ public class DeepShoe {
     }
 
     /**
-     *
-     * @param pelilauta Pelilauta josta halutaan lÃƒÂ¶ytÃƒÂ¤ÃƒÂ¤ paras siirto
+     * Min yrittaa loytaa pienimman arvon. Kun syvyys on 0 evaluoidaan pelilauta ja palautetaan se arvo.
+     * Muuten nappula siiirretaan ja kutsutaan alphabetamax metodia pienemmalla syvyydella.
+     * @param pelilauta Pelilauta josta halutaan loytaa paras siirto
      * @param vari Vari jonka siirto halutaan
      * @param syvyys Tamanhetkinen syvyys
      * @param beta
@@ -202,8 +204,9 @@ public class DeepShoe {
     }
 
     /**
-     *
-     * @param pelilauta Pelilauta josta halutaan lÃƒÂ¶ytÃƒÂ¤ÃƒÂ¤ paras siirto
+     * Max yrittaa loytaa suurimman arvon. Kun syvyys on 0 evaluoidaan pelilauta ja palautetaan se arvo.
+     * Muuten nappula siiirretaan ja kutsutaan alphabetamin metodia pienemmalla syvyydella.
+     * @param pelilauta Pelilauta josta halutaan loytaa paras siirto
      * @param vari Vari jonka siirto halutaan
      * @param syvyys Tamanhetkinen syvyys
      * @param beta
