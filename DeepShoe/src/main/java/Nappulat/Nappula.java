@@ -79,12 +79,11 @@ public class Nappula {
     public ArrayList<String> mahdollisetSiirrot(int x, int y, Ruutu[][] ruudukko) {
 
         ArrayList<String> siirrot = new ArrayList<String>();
-        
+
         if (ruudukko[x][y].getNappula() == null) {
             return siirrot;
         }
 
-        
         Pelilauta kopioLauta = new Pelilauta();
         kopioLauta.setRuudukko(ruudukko);
         String nappulanVari = ruudukko[x][y].getNappula().getVari();
@@ -101,7 +100,6 @@ public class Nappula {
             int uusiy = Integer.parseInt("" + siirto.charAt(1));
             
             
-
             if (ruudukko[uusix][uusiy].getNappula() == null) {
                 kopioLauta.siirra(x, y, uusix, uusiy);
                 if (!kopioLauta.onkoShakki(nappulanVari)) {

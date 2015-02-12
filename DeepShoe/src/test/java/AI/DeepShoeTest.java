@@ -154,7 +154,7 @@ public class DeepShoeTest {
     public void alphaBetaMinPalauttaaOikeinKunShakkiMatti() {
         pelilauta.siirra(0, 3, 6, 3);
         pelilauta.siirra(0, 0, 7, 3);
-        Double value = deepShoe.alphaBetaMin(pelilauta.getRuudukko(), "valkoinen", 1, Double.NaN, Double.NaN);
+        Double value = deepShoe.alphaBetaMin(pelilauta.getRuudukko(), "valkoinen", 0, Double.NaN, Double.NaN);
         Double expected = -50000.0;
         assertEquals(expected, value);
 
@@ -162,7 +162,7 @@ public class DeepShoeTest {
 
         pelilauta.siirra(7, 3, 1, 3);
         pelilauta.siirra(7, 0, 0, 3);
-        value = deepShoe.alphaBetaMin(pelilauta.getRuudukko(), "valkoinen", 1, Double.NaN, Double.NaN);
+        value = deepShoe.alphaBetaMin(pelilauta.getRuudukko(), "valkoinen", 0, Double.NaN, Double.NaN);
         expected = 50000.0;
         assertEquals(expected, value);
     }

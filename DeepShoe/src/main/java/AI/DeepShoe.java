@@ -58,7 +58,7 @@ public class DeepShoe {
             return "";
         }
 
-        if (pelilauta.onkoToistanutSiirron(vari, ruudukko, pelilauta) && !pelilauta.onkoShakkiMatti(vari) && !pelilauta.onkoShakki(vari)) {
+        if (pelilauta.onkoToistanutSiirron(vari, ruudukko, pelilauta) && !pelilauta.onkoShakkiMatti(vari) && !pelilauta.onkoShakki(vari) && allMoves.size() > 1) {
             Random rand = new Random();
             int randomLuku = rand.nextInt(allMoves.size() - 1);
             return allMoves.get(randomLuku).substring(2, 4) + allMoves.get(randomLuku).substring(0, 2);
@@ -150,12 +150,8 @@ public class DeepShoe {
 
         Pelilauta pelilauta = new Pelilauta();
         pelilauta.setRuudukko(ruudukko);
-        String toinenVari = "";
-        if (vari.equals("musta")) {
-            toinenVari = "valkoinen";
-        } else {
-            toinenVari = "musta";
-        }
+        String toinenVari = "valkoinen";
+        
         if (pelilauta.onkoShakkiMatti(vari)) {
             return -50000.0;
         } else if (pelilauta.onkoShakkiMatti(toinenVari)) {
@@ -222,12 +218,8 @@ public class DeepShoe {
         Pelilauta pelilauta = new Pelilauta();
         pelilauta.setRuudukko(ruudukko);
 
-        String toinenVari = "";
-        if (vari.equals("musta")) {
-            toinenVari = "valkoinen";
-        } else {
-            toinenVari = "musta";
-        }
+        String toinenVari = "musta";
+        
 
         if (pelilauta.onkoShakkiMatti(vari)) {
             return -50000.0;

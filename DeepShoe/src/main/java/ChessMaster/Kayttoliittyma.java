@@ -56,8 +56,9 @@ public class Kayttoliittyma {
     private boolean onkoNaytaMahdollisetSiirrot;
     private boolean valkoisenVuoro;
     private boolean peliAlkanut;
+    private boolean onkoStalemate;
     private SwingWorker worker;
-    
+
     private int valkoinenSyvyys;
     private int mustaSyvyys;
 
@@ -83,8 +84,9 @@ public class Kayttoliittyma {
         onkoNaytaMahdollisetSiirrot = false;
         onkoMustaRandomAIpaalla = false;
         onkoValkoinenRandomAIpaalla = false;
+        onkoStalemate = false;
         tekoaly = new DeepShoe();
-        valkoinenSyvyys = 4;
+        valkoinenSyvyys = 3;
         mustaSyvyys = 2;
 
         gui.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -397,7 +399,9 @@ public class Kayttoliittyma {
      * Lopettaa pelin ja nollaa pelilaudan.
      */
     private void lopetaPeli() {
-        if (!valkoisenVuoro) {
+        if (onkoStalemate) {
+            viesti.setText("Draw!");
+        } else if (!valkoisenVuoro) {
             viesti.setText("Checkmate, Black wins!");
         } else {
             viesti.setText("Checkmate, White wins!");
@@ -483,30 +487,31 @@ public class Kayttoliittyma {
 
     private synchronized void execute(final String vari) {
         worker = new SwingWorker() {
-            
+
             long time;
-            
+
             @Override
             protected String doInBackground() throws Exception {
-                if (pelilauta.onkoShakkiMatti("musta") || pelilauta.onkoShakkiMatti("valkoinen")) {
+                if (pelilauta.onkoShakkiMatti(vari)) {
                     lopetaPeli();
                 }
                 time = System.currentTimeMillis();
                 peliAlkanut = false;
                 String siirto = "";
-                if ( vari.equals("valkoinen")){
+                if (vari.equals("valkoinen")) {
                     siirto = tekoaly.bestMove(vari, pelilauta.getRuudukko(), pelilauta, valkoinenSyvyys);
                 } else {
                     siirto = tekoaly.bestMove(vari, pelilauta.getRuudukko(), pelilauta, mustaSyvyys);
                 }
+
                 return siirto;
             }
-            
+
             @Override
             protected void done() {
                 peliAlkanut = true;
                 String siirto = "";
-                
+
                 try {
                     siirto = (String) get();
                 } catch (InterruptedException ex) {
@@ -514,30 +519,31 @@ public class Kayttoliittyma {
                 } catch (ExecutionException ex) {
                     Logger.getLogger(Kayttoliittyma.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                
-                
-                
+
                 if (!siirto.equals("")) {
-                    
+
                     ekaX = Integer.parseInt("" + siirto.charAt(0));
                     ekaY = Integer.parseInt("" + siirto.charAt(1));
                     tokaX = Integer.parseInt("" + siirto.charAt(2));
                     tokaY = Integer.parseInt("" + siirto.charAt(3));
-                    System.out.println(vari +" siirsi " + kirjaimet[ekaY] + (8 - ekaX) + " to " + kirjaimet[tokaY]  + (8 - tokaX)+ " " + (System.currentTimeMillis() - time)/1000.0 + " sekuntissa");
+                    System.out.println(vari + " siirsi " + kirjaimet[ekaY] + (8 - ekaX) + " to " + kirjaimet[tokaY] + (8 - tokaX) + " " + (System.currentTimeMillis() - time) / 1000.0 + " sekuntissa");
                     if (valkoisenVuoro) {
                         AIpreviousMove.setText(" The White AI moved " + kirjaimet[ekaY] + (8 - ekaX) + " to " + kirjaimet[tokaY] + (8 - tokaX));
                     } else {
                         AIpreviousMove.setText(" The Black AI moved " + kirjaimet[ekaY] + (8 - ekaX) + " to " + kirjaimet[tokaY] + (8 - tokaX));
                     }
                     siirra();
-                    
+
+                } else if (!pelilauta.onkoShakkiMatti(vari)) {
+                    worker.execute();
+                } else if (pelilauta.onkoShakkiMatti(vari)) {
+                    lopetaPeli();
                 }
-                
-                
+
             }
-            
+
         };
-        
+
         worker.execute();
     }
 

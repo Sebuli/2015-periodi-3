@@ -204,9 +204,10 @@ public class Evaluator {
         }
         return value;
     }
+  
  
     /**
-     * Laskee ratsujen sijaintien arvon
+     * Laskee ratsujen sijaintien arvon. Loppupelissa ratsut eivat ole yhta hyvia.
      *
      * @param p Ruudukko jonka arvo lasketaan
      * @return laskettu arvo
@@ -268,7 +269,8 @@ public class Evaluator {
     }
  
     /**
-     * Laskee lahettien sijaintien arvon
+     * Laskee lahettien sijaintien arvon. Loppupelissa lahetti on arvokkaampi.
+     * Kaksi lahettia ovat parempia kuin yksi.
      *
      * @param p Ruudukko jonka arvo lasketaan
      * @return laskettu arvo
@@ -342,7 +344,8 @@ public class Evaluator {
     }
  
     /**
-     * Laskee kuninkaitten sijaintien arvon
+     * Laskee kuninkaitten sijaintien arvon. Loppupelissa kuninkaan hyvat sijainnit
+     * ovat erilaisia.
      *
      * @param p Ruudukko jonka arvo lasketaan
      * @return laskettu arvo

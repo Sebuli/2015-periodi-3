@@ -5,6 +5,7 @@
  */
 package ChessMaster;
 
+import AI.Evaluator;
 import Nappulat.Torni;
 import Nappulat.Lahetti;
 import Nappulat.Kuningatar;
@@ -188,16 +189,20 @@ public class Pelilauta {
 
         for (int i = 0; i <= 7; i++) {
             for (int t = 0; t <= 7; t++) {
-                if (getNappula(i, t) != null
-                        && ((vari.equals("musta") && getNappula(i, t).getTyyppi() == Nappula.Tyyppi.MKUNINGAS)
-                        || vari.equals("valkoinen") && getNappula(i, t).getTyyppi() == Nappula.Tyyppi.VKUNINGAS)) {
-                    x = i;
-                    y = t;
-                    break;
+                if (getNappula(i, t) != null && vari != null) {
+                    try {
+                        if ((vari.equals("musta") && getNappula(i, t).getTyyppi() == Nappula.Tyyppi.MKUNINGAS)
+                                || (vari.equals("valkoinen") && getNappula(i, t).getTyyppi() == Nappula.Tyyppi.VKUNINGAS)) {
+                            x = i;
+                            y = t;
+                            break;
+                        }
+                    } catch (NullPointerException e) {
+
+                    }
                 }
             }
         }
-
         if (x == -1 && y == -1) {
             return true;
         }
@@ -206,11 +211,12 @@ public class Pelilauta {
 
         for (int i = 0; i <= 7; i++) {
             for (int t = 0; t <= 7; t++) {
-                if (getNappula(i, t) != null && !getNappula(i, t).getVari().equals(vari)) {
-                    Pelilauta kopioLauta = new Pelilauta();
-                    kopioLauta.setRuudukko(ruudukko);
-                    if (!getNappula(i, t).kaikkiMahdollisetSiirrot(i, t, ruudukko).isEmpty()) {
+                if (getNappula(i, t) != null && !getNappula(i, t).getVari().equals(vari) && getNappula(i, t).kaikkiMahdollisetSiirrot(i, t, ruudukko) != null) {
+
+                    try {
                         kaikkiMahdollisetSiirrot.addAll(getNappula(i, t).kaikkiMahdollisetSiirrot(i, t, ruudukko));
+                    } catch (NullPointerException e) {
+                        
                     }
 
                 }
@@ -247,9 +253,18 @@ public class Pelilauta {
         for (int i = 0; i <= 7; i++) {
             for (int t = 0; t <= 7; t++) {
                 if (getNappula(i, t) != null && getNappula(i, t).getVari().equals(vari)
-                        && !getNappula(i, t).mahdollisetSiirrot(i, t, ruudukko).isEmpty()) {
-                    return false;
+                        && getNappula(i, t).mahdollisetSiirrot(i, t, ruudukko) != null) {
+
+                    try {
+                        if (!getNappula(i, t).mahdollisetSiirrot(i, t, ruudukko).isEmpty()) {
+                            return false;
+                        }
+                    } catch (NullPointerException e) {
+
+                    }
+
                 }
+
             }
         }
 
@@ -289,7 +304,13 @@ public class Pelilauta {
         return summa;
     }
 
+    /**
+     * Tarkistaa onko nappuloita alle 10, palauttaa totta jos on.
+     *
+     * @return
+     */
     public boolean onkoEndgame() {
+
         int nappuloidenMaara = 0;
         for (int i = 0; i <= 7; i++) {
             for (int t = 0; t <= 7; t++) {
@@ -308,6 +329,14 @@ public class Pelilauta {
         this.endGame = endGame;
     }
 
+    /**
+     * Tarkistaa onko nappula siiretty edes takaisin.
+     *
+     * @param vari Vari jonka vuoro on
+     * @param ruudukko Ruudukko jossa nappulat ovat
+     * @param pelilauta Pelilauta jota tarkistetaan
+     * @return Totta jos nappula on siirretty edes takaisin
+     */
     public boolean onkoToistanutSiirron(String vari, Ruutu[][] ruudukko, Pelilauta pelilauta) {
 
         if (vari.equals("musta") && mustatSiirrot[0].equals(mustatSiirrot[2]) && !mustatSiirrot[2].isEmpty()) {
