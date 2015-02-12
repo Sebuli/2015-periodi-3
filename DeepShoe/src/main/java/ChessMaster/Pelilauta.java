@@ -252,8 +252,7 @@ public class Pelilauta {
 
         for (int i = 0; i <= 7; i++) {
             for (int t = 0; t <= 7; t++) {
-                if (getNappula(i, t) != null && getNappula(i, t).getVari().equals(vari)
-                        && getNappula(i, t).mahdollisetSiirrot(i, t, ruudukko) != null) {
+                if (getNappula(i, t) != null && getNappula(i, t).getVari().equals(vari)) {
 
                     try {
                         if (!getNappula(i, t).mahdollisetSiirrot(i, t, ruudukko).isEmpty()) {

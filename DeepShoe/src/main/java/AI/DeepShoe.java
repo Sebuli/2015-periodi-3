@@ -44,8 +44,11 @@ public class DeepShoe {
      * @return Paras siirto
      */
     public String bestMove(String vari, Ruutu[][] ruudukko, Pelilauta pelilauta, int haluttuSyvyys) {
+        
+        beta = Double.MAX_VALUE;
+        alpha = Double.MIN_VALUE;
 
-        Double max = -1. / 0.;
+        Double max = Double.NEGATIVE_INFINITY;
         Double min = 1. / 0.;
         int syvyys = haluttuSyvyys;
         Double score = 0.0;
@@ -76,6 +79,8 @@ public class DeepShoe {
             }
 
             score = siirra(ruudukko, pelilauta, vari, syvyys, x, y, uusix, uusiy);
+            
+            
 
             if (max < score && vari.equals("valkoinen")) {
                 bestMove = move.substring(2, 4) + move.substring(0, 2);
@@ -83,7 +88,7 @@ public class DeepShoe {
             } else if (min > score && vari.equals("musta")) {
                 bestMove = move.substring(2, 4) + move.substring(0, 2);
                 min = score;
-            }
+            } 
         }
 
         return bestMove;
@@ -160,7 +165,7 @@ public class DeepShoe {
 
         ArrayList<String> allMoves = helper.allMoves(ruudukko, pelilauta, vari);
 
-        bestScore = Double.POSITIVE_INFINITY;
+        bestScore = Double.NEGATIVE_INFINITY;
 
         for (String move : allMoves) {
 
@@ -176,16 +181,17 @@ public class DeepShoe {
            
             if (ruudukko[uusix][uusiy].getNappula() == null) {
                 pelilauta.siirra(x, y, uusix, uusiy);
-                bestScore = Math.min(bestScore, alphaBetaMax(ruudukko, "valkoinen", syvyys - 1, beta, alpha));
+                bestScore = Math.max(bestScore, alphaBetaMax(ruudukko, "valkoinen", syvyys - 1, beta, alpha));
                 pelilauta.siirra(uusix, uusiy, x, y);
 
             } else if (!ruudukko[uusix][uusiy].getNappula().onkoSamaVari(ruudukko[x][y].getNappula())) {
                 Nappula nappula = ruudukko[uusix][uusiy].getNappula();
                 pelilauta.siirra(x, y, uusix, uusiy);
-                bestScore = Math.min(bestScore, alphaBetaMax(ruudukko, "valkoinen", syvyys - 1, beta, alpha));
+                bestScore = Math.max(bestScore, alphaBetaMax(ruudukko, "valkoinen", syvyys - 1, beta, alpha));
                 pelilauta.siirra(uusix, uusiy, x, y);
                 ruudukko[uusix][uusiy].asetaNappula(nappula);
             }
+            
             if (beta <= alpha) {
                 break;
             }

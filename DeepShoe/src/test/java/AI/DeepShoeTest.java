@@ -11,6 +11,7 @@ import java.lang.management.ThreadMXBean;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -191,7 +192,7 @@ public class DeepShoeTest {
         pelilauta.siirra(7, 3, 2, 3);
         Double expected = -16.0;
 
-        Double value = deepShoe.alphaBetaMax(pelilauta.getRuudukko(), "musta", 1, 0.0, 0.0);
+        Double value = deepShoe.alphaBetaMin(pelilauta.getRuudukko(), "musta", 1, 0.0, 0.0);
         assertEquals(expected, value);
         value = deepShoe.alphaBetaMax(pelilauta.getRuudukko(), "valkoinen", 1, 0.0, 0.0);
         expected = -6.0;
@@ -201,9 +202,31 @@ public class DeepShoeTest {
         expected = -16.0;
         assertEquals(expected, value);
 
-        value = deepShoe.alphaBetaMin(pelilauta.getRuudukko(), "valkoinen", 1, 0.0, 0.0);
+        value = deepShoe.alphaBetaMax(pelilauta.getRuudukko(), "valkoinen", 1, 0.0, 0.0);
         expected = -6.0;
         assertEquals(expected, value);
+    }
+    
+    @Test
+    public void palauttaakoParemmanTaiSamanKunIsompiSyvyysValkoinen(){
+        Double whiteValueThree = deepShoe.alphaBetaMax(pelilauta.getRuudukko(), "valkoinen", 3, Double.MAX_VALUE, Double.MIN_VALUE);
+        Double whiteValueTwo = deepShoe.alphaBetaMax(pelilauta.getRuudukko(), "valkoinen", 2, Double.MAX_VALUE, Double.MIN_VALUE);
+        Double whiteValueOne = deepShoe.alphaBetaMax(pelilauta.getRuudukko(), "valkoinen", 1, Double.MAX_VALUE, Double.MIN_VALUE);
+        System.out.println(whiteValueThree);
+        System.out.println(whiteValueTwo);
+        System.out.println(whiteValueOne);
+        assertTrue(whiteValueThree >= whiteValueTwo && whiteValueTwo >= whiteValueOne);
+    }
+    
+    @Test
+    public void palauttaakoParemmanTaiSamanKunIsompiSyvyysMusta(){
+        Double blackValueThree = deepShoe.alphaBetaMin(pelilauta.getRuudukko(), "musta", 3, Double.MAX_VALUE, Double.MIN_VALUE);
+        Double blackValueTwo = deepShoe.alphaBetaMin(pelilauta.getRuudukko(), "musta", 2, Double.MAX_VALUE, Double.MIN_VALUE);
+        Double blackValueOne = deepShoe.alphaBetaMin(pelilauta.getRuudukko(), "musta", 1, Double.MAX_VALUE, Double.MIN_VALUE);
+        System.out.println(blackValueThree);
+        System.out.println(blackValueTwo);
+        System.out.println(blackValueOne);
+        assertTrue(blackValueThree >= blackValueTwo && blackValueTwo >= blackValueOne);
     }
 
     

@@ -86,8 +86,8 @@ public class Kayttoliittyma {
         onkoValkoinenRandomAIpaalla = false;
         onkoStalemate = false;
         tekoaly = new DeepShoe();
-        valkoinenSyvyys = 3;
-        mustaSyvyys = 2;
+        valkoinenSyvyys = 4;
+        mustaSyvyys = 4;
 
         gui.setBorder(new EmptyBorder(5, 5, 5, 5));
         JToolBar tools = new JToolBar();
@@ -534,11 +534,7 @@ public class Kayttoliittyma {
                     }
                     siirra();
 
-                } else if (!pelilauta.onkoShakkiMatti(vari)) {
-                    worker.execute();
-                } else if (pelilauta.onkoShakkiMatti(vari)) {
-                    lopetaPeli();
-                }
+                } 
 
             }
 
