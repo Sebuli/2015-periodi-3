@@ -77,10 +77,10 @@ public class DeepShoe {
             if (move.equals("") || ruudukko[x][y].getNappula() == null) {
                 continue;
             }
-
+            
+                
+            
             score = siirra(ruudukko, pelilauta, vari, syvyys, x, y, uusix, uusiy);
-            
-            
 
             if (max < score && vari.equals("valkoinen")) {
                 bestMove = move.substring(2, 4) + move.substring(0, 2);
@@ -90,6 +90,7 @@ public class DeepShoe {
                 min = score;
             } 
         }
+        
 
         return bestMove;
     }
